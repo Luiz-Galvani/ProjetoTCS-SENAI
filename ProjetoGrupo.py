@@ -347,6 +347,83 @@ if st.session_state.get("authentication_status"):
                 st.success("Treino Cadastrado com Sucesso!!!")
                 st.rerun()  
 
+
+        if(menu == "🧍Área Cliente"):
+            st.header("🧍Área Cliente", divider = True)
+
+            st.subheader("🔍 Filtragem de treinos e exercícios", divider=True)
+            treinos = pd.read_sql_query("""
+                            SELECT DISTINCT treino
+                            FROM treino_exercicios
+                            """, conn)
+            filtro_treino = st.selectbox("Escolha o treino", treinos['treino'].unique())
+            exercicio_filtrados = pd.read_sql_query(
+                "SELECT exercicio FROM treino_exercicios WHERE treino = ?", conn, params=(filtro_treino,))
+            st.dataframe(exercicio_filtrados)
+
+            st.subheader("👨‍🏫 Instrutores:", divider=True)
+            instrutores = pd.read_sql_query('''
+                SELECT i.nome AS nome_do_instrutor
+                FROM instrutores i
+            ''', conn)
+            st.dataframe(instrutores)
+
+            st.subheader("📚 Info. Planos:", divider=True)
+            planos = ['Basic', 'Premium', 'VIP']
+            tipoPlano = st.selectbox('Plano:' ,planos)
+            if(tipoPlano == 'Basic'):
+                st.write("""
+                            **Plano Basic**\n
+                            Plano básico para quem quer começar a se exercitar. Acesso à academia durante horários limitados, uso livre dos equipamentos e participação em aulas básicas em grupo.
+                        """)
+            elif(tipoPlano == 'Premium'):
+                st.write("""
+                            **Plano Premium**\n
+                            Plano intermediário com acesso livre durante todo o horário de funcionamento. Inclui aulas avançadas, acompanhamento mensal com personal trainer e acesso à sauna.
+                        """)
+            else:
+                st.write("""
+                            **Plano VIP**\n
+                            Plano completo para quem busca o máximo de benefícios. Acesso 24 horas, aulas exclusivas, sessões regulares com personal trainer, avaliação física detalhada e acesso
+                            a todas as áreas VIP, como piscina e spa.
+
+                        """)
+
+            st.subheader("Horários de Funcionamento da Academia:", divider = True)
+            st.write("""
+                    **Plano Basic:**\n
+                    Segunda a Sexta-feira: 06:00 - 12:00
+
+                    Sábado: 08:00 - 12:00
+
+                    Domingo: Fechado
+
+                    Observação: Usuários do plano Basic têm acesso apenas durante o horário da manhã nos dias úteis e apenas até o meio-dia no sábado.
+                    """)
+            st.subheader("",divider = True)
+            st.write("""
+                    **Plano Premium:**\n
+                    Segunda a Sexta-feira: 06:00 - 22:00
+
+                    Sábado: 08:00 - 18:00
+
+                    Domingo: 10:00 - 14:00
+
+                    Observação: Usuários do plano Premium têm acesso durante o dia todo, com um horário reduzido no domingo.
+                    """)
+            st.subheader("",divider = True)
+            st.write("""
+                    **Plano VIP:**\n
+                    Segunda a Domingo: 24 horas por dia (Acesso completo)
+
+                    Observação: Usuários do plano VIP podem acessar a academia a qualquer hora do dia, todos os dias da semana, com total flexibilidade.
+                    """)
+
+            st.subheader("Sobre a Academia",divider = True)
+            st.write("""
+                    **Endereço:**\n
+                    Rua ABC 950, Londrina-PR 
+                    """)
     else:
         if(menu == "👤 Cliente"):
             st.title(":warning: Você não tem acesso a essa página")
