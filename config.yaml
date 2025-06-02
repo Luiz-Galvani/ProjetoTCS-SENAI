@@ -1,0 +1,22 @@
+credentials:
+  usernames:
+    pedrolucas:
+      email: testando@gmail.com
+      logged_in: False
+      name: Pedro Lucas
+      password: 123a
+    randrade:
+      email: testando1@gmail.com
+      logged_in: False
+      name: Raquel Barreto
+      password: abcd1234
+    admin:
+      email: admin@gmail.com
+      logged_in: False
+      name: Administracao
+      password: 123a    
+    
+cookie:
+  expiry_days: 1
+  key: some_signature_key
+  name: some_cookie_name
