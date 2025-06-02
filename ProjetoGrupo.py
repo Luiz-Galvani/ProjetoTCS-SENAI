@@ -113,7 +113,7 @@ importar_csv('pagamento_clientes.csv', 'pagamento_clientes', ['id', 'cliente_id'
 conn.commit()
 
 st.sidebar.title("📋Menu")
-menu = st.sidebar.selectbox("Categorias: ", ["🏠 Home","🔐 Login","👤 Cliente", "💰 Pagamento", "🏋️ Treino", "🧍Área Cliente"])
+menu = st.sidebar.selectbox("Categorias: ", ["🏠 Home","🔐 Login","👤 Cliente", "💰 Pagamento","📊 Dashboard", "🏋️ Treino", "🧍Área Cliente"])
 
 if(menu == "🏠 Home"):
     st.header("🏠 Página Inicial", divider = True)
@@ -145,7 +145,7 @@ if(menu == "🔐 Login"):
     if st.session_state["authentication_status"]:
         authenticator.logout()
         st.write(f'Bem-vindo *{st.session_state["name"]}*')
-        st.title('Página de Sistema')
+
     elif st.session_state["authentication_status"] is False:
         st.error('Usuário/Senha inválido')
     elif st.session_state["authentication_status"] is None:
@@ -272,6 +272,43 @@ if st.session_state.get("authentication_status"):
                     conn.commit()
                     st.rerun()
 
+        if(menu == "📊 Dashboard"):
+            st.header("📊 Dashboard Geral", divider=True)
+
+            total_clientes = pd.read_sql_query("SELECT COUNT(*) AS total FROM clientes", conn)['total'][0]
+
+            total_por_mes = pd.read_sql_query('''
+                SELECT 
+                    strftime('%m/%Y', data_pagamento) AS mes,
+                    SUM(valor_pago) AS total
+                FROM pagamento_clientes
+                GROUP BY mes
+                ORDER BY data_pagamento DESC
+            ''', conn)
+
+            total_planos = pd.read_sql_query("SELECT COUNT(*) AS total FROM planos", conn)['total'][0]
+
+            clientes_por_plano = pd.read_sql_query('''
+                SELECT p.nome AS plano, COUNT(c.id) AS total_clientes
+                FROM planos p
+                LEFT JOIN clientes c ON c.plano_id = p.id
+                GROUP BY p.id
+            ''', conn)
+
+            col1, col2, col3 = st.columns(3)
+            col1.metric("👥 Total de Clientes", total_clientes)
+            col2.metric("📅 Planos Ativos", total_planos)
+            if not total_por_mes.empty:
+                col3.metric("💵 Último Total Mensal", f"R$ {total_por_mes.iloc[0]['total']:.2f}")
+
+            st.divider()
+
+            st.subheader("💰 Total arrecadado por mês")
+            st.bar_chart(total_por_mes.set_index('mes'))
+
+            st.subheader("🏷️ Clientes por Plano")
+            st.bar_chart(clientes_por_plano.set_index('plano'))
+
 
 
 
@@ -311,6 +348,14 @@ if st.session_state.get("authentication_status"):
                 st.rerun()  
 
     else:
+        if(menu == "👤 Cliente"):
+            st.title(":warning: Você não tem acesso a essa página")
+        if(menu == "💰 Pagamento"):            
+            st.title(":warning: Você não tem acesso a essa página")
+        if(menu == "🏋️ Treino"):            
+            st.title(":warning: Você não tem acesso a essa página")
+        if(menu == "📊 Dashboard"):            
+            st.title(":warning: Você não tem acesso a essa página")
         if(menu == "🧍Área Cliente"):
             st.header("🧍Área Cliente", divider = True)
 
