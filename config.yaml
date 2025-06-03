@@ -1,22 +1,44 @@
-credentials:
-  usernames:
-    pedrolucas:
-      email: testando@gmail.com
-      logged_in: False
-      name: Pedro Lucas
-      password: 123a
-    randrade:
-      email: testando1@gmail.com
-      logged_in: False
-      name: Raquel Barreto
-      password: abcd1234
-    admin:
-      email: admin@gmail.com
-      logged_in: False
-      name: Administracao
-      password: 123a    
-    
 cookie:
   expiry_days: 1
   key: some_signature_key
   name: some_cookie_name
+credentials:
+  usernames:
+    admin:
+      email: admin@gmail.com
+      logged_in: false
+      name: Administracao
+      password: $2b$12$RbjFbhFt/W0KAdEAztRiA.X1ITNvpAeWuPUgL7IgfxMo.xPdzAziu
+    flavin:
+      email: falvio@gmail
+      logged_in: false
+      name: Flavio
+      password: 123a
+    jujuzinha:
+      email: juju@emai
+      logged_in: false
+      name: juju
+      password: 123a
+    luiz:
+      email: luiz@email
+      logged_in: false
+      name: Luiz Galvani
+      password: 123a
+    luiz galvani:
+      name: Luiz
+      password: $2b$12$fbK5X8MfBsfUv8mvJGebYuPUsOrvgPerDRt2O36GmjFS4l4kjK5tO
+    matheuzin:
+      email: matheus@gmail
+      logged_in: false
+      name: matheus
+      password: 123a
+    pedrolucas:
+      email: testando@gmail.com
+      logged_in: false
+      name: Pedro Lucas
+      password: $2b$12$n/PEC7BOu5p4cNe72gajXe0m1trtb9g1GemCcn3jykfVjfgzeZL42
+    randrade:
+      email: testando1@gmail.com
+      logged_in: false
+      name: Raquel Barreto
+      password: $2b$12$DTPfQlrw4EAVupVC87OfpeA8VRSd.n93gfhGuK5qHzcrTxLQjLfDi

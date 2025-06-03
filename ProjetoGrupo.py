@@ -8,7 +8,7 @@ import yaml
 from yaml.loader import SafeLoader
 
 
-with open('config.yaml') as file:
+with open('ProjetoTCS-SENAI\config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
 authenticator = stauth.Authenticate(
@@ -151,7 +151,60 @@ if(menu == "🔐 Login"):
         st.error('Usuário/Senha inválido')
     elif st.session_state["authentication_status"] is None:
         st.warning('Por favor, utilize seu usuário e senha!')
+    CONFIG_FILE = "ProjetoTCS-SENAI\config.yaml"
 
+    # Função para carregar o config.yaml
+    def carregar_config():
+        with open(CONFIG_FILE, 'r') as file:
+            return yaml.load(file, Loader=SafeLoader)
+
+    # Função para salvar no config.yaml
+    def salvar_config(config):
+        with open(CONFIG_FILE, 'w') as file:
+            yaml.dump(config, file, default_flow_style=False)
+
+    # Função para cadastrar novo usuário
+    def cadastrar_usuario(nome, usuario, email, senha):
+        config = carregar_config()
+
+        if usuario in config['credentials']['usernames']:
+            st.error("❌ Nome de usuário já existe.")
+            return
+
+        config['credentials']['usernames'][usuario] = {
+            'name': nome,
+            'email': email,
+            'logged_in': False,
+            'password': senha
+        }
+
+        salvar_config(config)
+        st.success("✅ Usuário cadastrado com sucesso!")
+        st.session_state.reset = True
+
+    # Interface no Streamlit
+    st.header("👤 Cadastro de Usuário")
+    if 'reset' not in st.session_state:
+        st.session_state.reset = False
+    if st.session_state.reset:
+        st.session_state['nome'] = ""
+        st.session_state['usuario'] = ""
+        st.session_state['email'] = ""
+        st.session_state['senha'] = ""
+        st.session_state.reset = False
+
+    nome = st.text_input("Nome completo", key = 'nome')
+    usuario = st.text_input("Nome de usuário", key = 'usuario')
+    email = st.text_input("Email", key = 'email')
+    senha = st.text_input("Senha", type = "password", key = 'senha')
+
+    if st.button("Cadastrar"):
+        if nome and usuario and email and senha:
+            cadastrar_usuario(nome, usuario, email, senha)
+            time.sleep(2)
+            st.rerun()
+        else:
+            st.warning("⚠️ Preencha todos os campos.")
 
 if st.session_state.get("authentication_status"):
 
@@ -223,6 +276,9 @@ if st.session_state.get("authentication_status"):
                 st.session_state.reset = True
                 
                 st.rerun()
+            
+
+            
 
         if(menu == "💰 Pagamento"):
             st.header("💰 Pagamento", divider = True)  
