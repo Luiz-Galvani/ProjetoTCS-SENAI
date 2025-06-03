@@ -247,9 +247,9 @@ if st.session_state.get("authentication_status"):
                 erro = False
 
                 try:
-                    data_pagamentos = datetime.strptime(data_pagamentos, "%d-%m-%Y").strftime("%d-%m-%Y")
+                    data_pagamentos = datetime.strptime(data_pagamentos, "%Y-%m-%d").strftime("%Y-%m-%d")
                 except ValueError:
-                    st.error("Formato de data inválido! Use o formato DD-MM-AAAA.")
+                    st.error("Formato de data inválido! Use o formato AAAA-MM-DD.")
                     erro = True
 
 
@@ -268,7 +268,12 @@ if st.session_state.get("authentication_status"):
 
                 if not erro:
                     cursor.execute("INSERT INTO pagamento_clientes (cliente_id, plano_id, valor_pago, data_pagamento) VALUES (?,?,?,?)",
-                                (cliente_id, plano_id, valor_pago, data_pagamentos))
+                            (cliente_id, plano_id, valor_pago, data_pagamentos))
+                    cursor.execute('''
+                        UPDATE pagamento_clientes
+                        SET plano_id = ?, valor_pago = ?, data_pagamento = ?
+                        WHERE cliente_id = ?
+                    ''', (plano_id, valor_pago, data_pagamentos, cliente_id))
                     conn.commit()
                     st.rerun()
 
@@ -332,12 +337,20 @@ if st.session_state.get("authentication_status"):
             st.dataframe(instrutores_clientes)
             st.subheader("➕ Inserir novo treino")
             with st.form("form_inserir2"):
-                treino_id = st.text_input("Informe o ID do treino")
-                treino = st.text_input("Informe o treino")
-                exercicio_id = st.text_input("Informe o ID do exercicio:")
-                exercicio = st.text_input("Informe o exercicio:")
-                serie = st.text_input("Informe quantas séries:")
-                repeticao = st.text_input("Informe quantas repetições:")
+                treinos_id = ["1", "2", "3","4"]
+                treino = ["a", "b", "c", "d"]
+                exercicio_id = ["1","2","3","4","5","6","7","8"]
+                exercicio = ["agachamento", "bíceps", "tríceps", "panturrilha","abdominal", "flexora","abdutora","extensora"]
+                serie = ["1","2", "3","4", "5","6","7","8", "9","10", "12" ]
+                repeticao = ["4","5", "6","8", "10","12","15","18", "20","22", "25"]
+
+                treino_id = st.selectbox("Informe o ID do treino", options=treinos_id)
+                treino = st.selectbox("Informe o treino", options=treinos)
+                exercicio_id = st.selectbox("Informe o ID do exercício", options=exercicio_id)
+                exercicio = st.selectbox("Informe o exercício", options=exercicio)
+                serie = st.selectbox("Informe quantas séries:", options=serie)
+                repeticao = st.selectbox("Informe quantas repetições:", options=repeticao)
+
                 enviar = st.form_submit_button("Inserir")
 
             if enviar and treino.strip():
