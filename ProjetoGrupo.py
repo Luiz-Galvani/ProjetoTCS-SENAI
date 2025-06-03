@@ -110,6 +110,7 @@ importar_csv('planos.csv', 'planos', ['id', 'nome', 'preco_mensal', 'duracao_mes
 importar_csv('treino_exercicios.csv', 'treino_exercicios', ['id', 'treino_id','treino','exercicio_id','exercicio','series', 'repeticoes'])
 importar_csv('pagamento_clientes.csv', 'pagamento_clientes', ['id', 'cliente_id','plano_id','data_pagamento','valor_pago'])
 
+
 conn.commit()
 
 st.sidebar.title("📋Menu")
@@ -234,6 +235,26 @@ if st.session_state.get("authentication_status"):
                 GROUP BY c.id
             ''', conn)
             st.dataframe(total_pagamentos)
+            
+            st.subheader("📋 Pagamentos individuais", divider=True)
+            nome_filtro = st.text_input("🔍 Filtrar por nome do cliente:")
+            pagamentos_individuais = pd.read_sql_query('''
+                SELECT 
+                    pc.id AS pagamento_id,
+                    c.nome AS nome_do_cliente,
+                    pc.plano_id,
+                    pc.valor_pago,
+                    pc.data_pagamento
+                FROM pagamento_clientes pc
+                JOIN clientes c ON pc.cliente_id = c.id
+                ORDER BY pc.data_pagamento DESC
+            ''', conn)
+            if nome_filtro.strip():
+                pagamentos_individuais = pagamentos_individuais[
+                    pagamentos_individuais["nome_do_cliente"].str.contains(nome_filtro, case=False, na=False)
+                ]
+
+            st.dataframe(pagamentos_individuais)
 
 
             if 'reset' not in st.session_state:
@@ -279,11 +300,11 @@ if st.session_state.get("authentication_status"):
                 if not erro:
                     cursor.execute("INSERT INTO pagamento_clientes (cliente_id, plano_id, valor_pago, data_pagamento) VALUES (?,?,?,?)",
                                 (cliente_id, plano_id, valor_pago, data_pagamentos))
-                    cursor.execute('''
-                                    UPDATE pagamento_clientes
-                                   SET plano_id = ?, valor_pago = ?, data_pagamento = ?
-                                   WHERE cliente_id = ?
-                                   ''',(plano_id, valor_pago, data_pagamentos, cliente_id))
+                    # cursor.execute('''
+                    #                 UPDATE pagamento_clientes
+                    #                SET plano_id = ?, valor_pago = ?, data_pagamento = ?
+                    #                WHERE cliente_id = ?
+                    #                ''',(plano_id, valor_pago, data_pagamentos, cliente_id))
                     conn.commit()
                     st.success("Pagamento cadastrado com sucesso!")
                     st.session_state.reset = True
