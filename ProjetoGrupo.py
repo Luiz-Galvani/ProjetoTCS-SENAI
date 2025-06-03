@@ -153,17 +153,14 @@ if(menu == "🔐 Login"):
         st.warning('Por favor, utilize seu usuário e senha!')
     CONFIG_FILE = "ProjetoTCS-SENAI\config.yaml"
 
-    # Função para carregar o config.yaml
     def carregar_config():
         with open(CONFIG_FILE, 'r') as file:
             return yaml.load(file, Loader=SafeLoader)
 
-    # Função para salvar no config.yaml
     def salvar_config(config):
         with open(CONFIG_FILE, 'w') as file:
             yaml.dump(config, file, default_flow_style=False)
 
-    # Função para cadastrar novo usuário
     def cadastrar_usuario(nome, usuario, email, senha):
         config = carregar_config()
 
@@ -182,7 +179,6 @@ if(menu == "🔐 Login"):
         st.success("✅ Usuário cadastrado com sucesso!")
         st.session_state.reset = True
 
-    # Interface no Streamlit
     st.header("👤 Cadastro de Usuário")
     if 'reset' not in st.session_state:
         st.session_state.reset = False
