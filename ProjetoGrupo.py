@@ -257,9 +257,9 @@ if st.session_state.get("authentication_status"):
                 erro = False
 
                 try:
-                    data_pagamentos = datetime.strptime(data_pagamentos, "%d-%m-%Y").strftime("%d-%m-%Y")
+                    data_pagamentos = datetime.strptime(data_pagamentos, "%Y-%m-%d").strftime("%Y-%m-%d")
                 except ValueError:
-                    st.error("Formato de data inválido! Use o formato DD-MM-AAAA.")
+                    st.error("Formato de data inválido! Use o formato AAAA-MM-DD.")
                     erro = True
 
 
@@ -279,6 +279,11 @@ if st.session_state.get("authentication_status"):
                 if not erro:
                     cursor.execute("INSERT INTO pagamento_clientes (cliente_id, plano_id, valor_pago, data_pagamento) VALUES (?,?,?,?)",
                                 (cliente_id, plano_id, valor_pago, data_pagamentos))
+                    cursor.execute('''
+                                    UPDATE pagamento_clientes
+                                   SET plano_id = ?, valor_pago = ?, data_pagamento = ?
+                                   WHERE cliente_id = ?
+                                   ''',(plano_id, valor_pago, data_pagamentos, cliente_id))
                     conn.commit()
                     st.success("Pagamento cadastrado com sucesso!")
                     st.session_state.reset = True
