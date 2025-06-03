@@ -235,21 +235,31 @@ if st.session_state.get("authentication_status"):
             ''', conn)
             st.dataframe(total_pagamentos)
 
+
+            if 'reset' not in st.session_state:
+                st.session_state.reset = False
+            if st.session_state.reset:
+                st.session_state['cliente_id'] = ""
+                st.session_state['plano_id'] = ""
+                st.session_state['valor_pago'] = ""
+                st.session_state['data_pagamentos'] = ""
+                st.session_state.reset = False
+
             st.subheader("➕ Inserir novo pagamento")
             with st.form("form_inserir"):
-                cliente_id = st.text_input("Informe o ID do cliente")
-                plano_id = st.text_input("Informe o ID do plano")
-                valor_pago = st.text_input("Valor pago:")
-                data_pagamentos = st.text_input("📅 Insira data pagamento:")
+                cliente_id = st.text_input("Informe o ID do cliente", key="cliente_id")
+                plano_id = st.text_input("Informe o ID do plano", key="plano_id")
+                valor_pago = st.text_input("Valor pago:", key="valor_pago")
+                data_pagamentos = st.text_input("📅 Insira data pagamento:", key="data_pagamentos")
                 enviar = st.form_submit_button("Inserir")
 
             if enviar and cliente_id.strip():
                 erro = False
 
                 try:
-                    data_pagamentos = datetime.strptime(data_pagamentos, "%Y-%m-%d").strftime("%Y-%m-%d")
+                    data_pagamentos = datetime.strptime(data_pagamentos, "%d-%m-%Y").strftime("%d-%m-%Y")
                 except ValueError:
-                    st.error("Formato de data inválido! Use o formato AAAA-MM-DD.")
+                    st.error("Formato de data inválido! Use o formato DD-MM-AAAA.")
                     erro = True
 
 
@@ -268,14 +278,13 @@ if st.session_state.get("authentication_status"):
 
                 if not erro:
                     cursor.execute("INSERT INTO pagamento_clientes (cliente_id, plano_id, valor_pago, data_pagamento) VALUES (?,?,?,?)",
-                            (cliente_id, plano_id, valor_pago, data_pagamentos))
-                    cursor.execute('''
-                        UPDATE pagamento_clientes
-                        SET plano_id = ?, valor_pago = ?, data_pagamento = ?
-                        WHERE cliente_id = ?
-                    ''', (plano_id, valor_pago, data_pagamentos, cliente_id))
+                                (cliente_id, plano_id, valor_pago, data_pagamentos))
                     conn.commit()
+                    st.success("Pagamento cadastrado com sucesso!")
+                    st.session_state.reset = True
+                    time.sleep(2)
                     st.rerun()
+
 
         if(menu == "📊 Dashboard"):
             st.header("📊 Dashboard Geral", divider=True)
@@ -334,7 +343,20 @@ if st.session_state.get("authentication_status"):
                 JOIN clientes c on i.id = c.instrutor_id
                 GROUP BY i.id
             ''', conn)
+
             st.dataframe(instrutores_clientes)
+            
+            if 'reset' not in st.session_state:
+                st.session_state.reset = False
+            if st.session_state.reset:
+                st.session_state['treinos_id'] = ""
+                st.session_state['treino'] = ""
+                st.session_state['exercicio_id'] = ""
+                st.session_state['exercicio'] = ""
+                st.session_state['serie'] = ""
+                st.session_state['repeticao'] = ""
+                st.session_state.reset = False
+
             st.subheader("➕ Inserir novo treino")
             with st.form("form_inserir2"):
                 treinos_id = ["1", "2", "3","4"]
@@ -344,12 +366,12 @@ if st.session_state.get("authentication_status"):
                 serie = ["1","2", "3","4", "5","6","7","8", "9","10", "12" ]
                 repeticao = ["4","5", "6","8", "10","12","15","18", "20","22", "25"]
 
-                treino_id = st.selectbox("Informe o ID do treino", options=treinos_id)
-                treino = st.selectbox("Informe o treino", options=treinos)
-                exercicio_id = st.selectbox("Informe o ID do exercício", options=exercicio_id)
-                exercicio = st.selectbox("Informe o exercício", options=exercicio)
-                serie = st.selectbox("Informe quantas séries:", options=serie)
-                repeticao = st.selectbox("Informe quantas repetições:", options=repeticao)
+                treino_id = st.selectbox("Informe o ID do treino", options=treinos_id, key = 'treino_id')
+                treino = st.selectbox("Informe o treino", options=treinos, key = 'treino')
+                exercicio_id = st.selectbox("Informe o ID do exercício", options=exercicio_id, key = 'exercicio_id')
+                exercicio = st.selectbox("Informe o exercício", options=exercicio, key = 'exercicio')
+                serie = st.selectbox("Informe quantas séries:", options=serie, key = 'serie')
+                repeticao = st.selectbox("Informe quantas repetições:", options=repeticao, key = 'repeticao')
 
                 enviar = st.form_submit_button("Inserir")
 
@@ -358,6 +380,8 @@ if st.session_state.get("authentication_status"):
                                 (treino_id, treino, exercicio_id, exercicio,serie,repeticao))
                 conn.commit()
                 st.success("Treino Cadastrado com Sucesso!!!")
+                time.sleep(2)
+                st.session_state.reset = False
                 st.rerun()  
 
 
@@ -523,7 +547,7 @@ if st.session_state.get("authentication_status"):
                     Rua ABC 950, Londrina-PR 
                     """)
 else:
-    if menu != "🔐 Login":
+    if menu != "🔐 Login" and menu != "🏠 Home":
         st.warning("⚠️ Você não tem acesso a esta página.")
 
     conn.close()
